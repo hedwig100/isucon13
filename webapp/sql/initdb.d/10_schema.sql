@@ -94,7 +94,7 @@ CREATE TABLE `ng_words` (
   `word` VARCHAR(255) NOT NULL,
   `created_at` BIGINT NOT NULL
 ) ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
-CREATE INDEX ng_words_word ON ng_words(`word`);
+-- CREATE INDEX ng_words_word ON ng_words(`word`);
 
 -- ライブ配信に対するリアクション
 CREATE TABLE `reactions` (
@@ -109,3 +109,4 @@ CREATE TABLE `reactions` (
 ALTER TABLE livestream_tags ADD INDEX livestream_id_index(livestream_id);
 ALTER TABLE icons ADD INDEX icon_index(user_id);
 ALTER TABLE themes ADD INDEX theme_index(user_id);
+ALTER TABLE ng_words ADD INDEX ng_word_index(user_id, livestream_id);
