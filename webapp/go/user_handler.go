@@ -123,7 +123,7 @@ func getIconHandler(c echo.Context) error {
 		c.Logger().Debugf("[NOIFNONE] hash: %s, image.Hash: %s", hash, image.Hash)
 		return c.Blob(http.StatusOK, "image/jpeg", image.Image)
 	}
-	if hash == image.Hash {
+	if hash[1:len(hash)-1] == image.Hash {
 		c.Logger().Debugf("[HASHDETECTED] hash: %s, image.Hash: %s", hash, image.Hash)
 		return c.NoContent(http.StatusNotModified)
 	}
