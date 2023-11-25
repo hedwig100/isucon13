@@ -77,6 +77,11 @@ type LoginRequest struct {
 	Password string `json:"password"`
 }
 
+type GetIconRequest struct {
+	Image []byte `db:"image"`
+	Hash  string `db:"image_hash"`
+}
+
 type PostIconRequest struct {
 	Image []byte `json:"image"`
 }
@@ -104,8 +109,8 @@ func getIconHandler(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get user: "+err.Error())
 	}
 
-	var image []byte
-	if err := tx.GetContext(ctx, &image, "SELECT image FROM icons WHERE user_id = ?", user.ID); err != nil {
+	var image GetIconRequest
+	if err := tx.GetContext(ctx, &image, "SELECT image, image_hash FROM icons WHERE user_id = ?", user.ID); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return c.File(fallbackImage)
 		} else {
@@ -113,7 +118,14 @@ func getIconHandler(c echo.Context) error {
 		}
 	}
 
-	return c.Blob(http.StatusOK, "image/jpeg", image)
+	hash := c.Request().Header.Get("If-None-Match")
+	if hash == "" {
+		return c.Blob(http.StatusOK, "image/jpeg", image.Image)
+	}
+	if hash == image.Hash {
+		return c.NoContent(http.StatusNotModified)
+	}
+	return c.Blob(http.StatusOK, "image/jpeg", image.Image)
 }
 
 func postIconHandler(c echo.Context) error {
