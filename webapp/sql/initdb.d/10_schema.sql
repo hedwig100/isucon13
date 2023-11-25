@@ -106,3 +106,5 @@ CREATE TABLE `reactions` (
 ) ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
 
 ALTER TABLE livestream_tags ADD INDEX livestream_id_index(livestream_id);
+ALTER TABLE icons ADD INDEX icon_index(user_id);
+ALTER TABLE themes ADD INDEX theme_index(user_id);
