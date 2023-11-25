@@ -117,7 +117,7 @@ func getUserStatisticsHandler(c echo.Context) error {
 
 	user2score := make(map[string]int64, len(users))
 	for i := 0; i < len(users); i++ {
-		user2score[users[i].name] = 0
+		user2score[users[i].Name] = 0
 	}
 	for i := 0; i < len(ranking0); i++ {
 		user2score[ranking0[i].Username] += ranking0[i].Score
