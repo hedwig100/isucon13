@@ -16,5 +16,5 @@ sudo cp /dev/null /var/log/mysql/mysql-slow.log
 # MEMO: This comand doesn't work well.
 # sudo systemctl restart mysqld
 
-cd ../webapp/go && go build
+cd ../webapp/go && make build
 sudo systemctl restart isupipe-go.service
