@@ -15,8 +15,8 @@ if [ $# -eq 1 ]; then
 fi
 
 # TODO: don't use head
-sudo mysqldumpslow -s t /var/log/mysql/mysql-slow.log | head -n 20
+sudo mysqldumpslow -s t /var/log/mysql/mysql-slow.log | head -n 100
 
-if [ -n "$rotate_filepath" ]; then
-    sudo mv /var/log/mysql/mysql-slow.log $rotate_filepath
-fi
+#if [ -n "$rotate_filepath" ]; then
+#    sudo mv /var/log/mysql/mysql-slow.log $rotate_filepath
+#fi
