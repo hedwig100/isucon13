@@ -19,6 +19,7 @@
 .vscode-server
 .wget-hsts
 .viminfo
+.lesshst
 
 webapp/node
 webapp/perl
