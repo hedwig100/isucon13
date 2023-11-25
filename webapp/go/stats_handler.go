@@ -87,20 +87,19 @@ func getUserStatisticsHandler(c echo.Context) error {
 	}
 
 	// ランク算出
-	// var users []*UserModel
-	// if err := tx.SelectContext(ctx, &users, "SELECT * FROM users"); err != nil {
-	// 	return echo.NewHTTPError(http.StatusInternalServerError, "failed to get users: "+err.Error())
-	// }
+	var users []*UserModel
+	if err := tx.SelectContext(ctx, &users, "SELECT * FROM users"); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get users: "+err.Error())
+	}
 
 	var ranking0 UserRanking
 	var ranking1 UserRanking
-	// var ranking UserRanking
 	// for _, user := range users {
 	// var reactions int64
 	query := `
 		SELECT u.name AS name, COUNT(*) AS score FROM users u
-		LEFT OUTER JOIN livestreams l ON l.user_id = u.id
-		LEFT OUTER JOIN reactions r ON r.livestream_id = l.id
+		INNER JOIN livestreams l ON l.user_id = u.id
+		INNER JOIN reactions r ON r.livestream_id = l.id
 		GROUP BY u.name`
 	if err := tx.SelectContext(ctx, &ranking0, query); err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to count reactions: "+err.Error())
@@ -109,19 +108,30 @@ func getUserStatisticsHandler(c echo.Context) error {
 	// var tips int64
 	query = `
 		SELECT u.name AS name, IFNULL(SUM(l2.tip), 0) AS score FROM users u
-		LEFT OUTER JOIN livestreams l ON l.user_id = u.id	
-		LEFT OUTER JOIN livecomments l2 ON l2.livestream_id = l.id
+		INNER JOIN livestreams l ON l.user_id = u.id	
+		INNER JOIN livecomments l2 ON l2.livestream_id = l.id
 		GROUP BY u.name`
 	if err := tx.SelectContext(ctx, &ranking1, query); err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to count tips: "+err.Error())
 	}
 
-	user2score := make(map[string]int64, len(ranking0))
+	user2score := make(map[string]int64, len(users))
+	for i := 0; i < len(users); i++ {
+		user2score[users[i].name] = 0
+	}
 	for i := 0; i < len(ranking0); i++ {
-		user2score[ranking0[i].Username] = ranking0[i].Score
+		user2score[ranking0[i].Username] += ranking0[i].Score
 	}
 	for i := 0; i < len(ranking1); i++ {
-		ranking1[i].Score += user2score[ranking1[i].Username]
+		user2score[ranking1[i].Username] += ranking1[i].Score
+	}
+
+	var ranking UserRanking
+	for k, v := range user2score {
+		ranking = append(ranking, UserRankingEntry{
+			Username: k,
+			Score:    v,
+		})
 	}
 
 	// score := reactions + tips
