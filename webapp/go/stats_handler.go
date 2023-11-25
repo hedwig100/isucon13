@@ -231,13 +231,16 @@ func getLivestreamStatisticsHandler(c echo.Context) error {
 	if err := tx.GetContext(ctx, &ranking, "SELECT l.id AS livestream_id, COUNT(*) AS score FROM livestreams l INNER JOIN reactions r ON l.id = r.livestream_id GROUP BY l.id"); err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to count reactions: "+err.Error())
 	}
-
-	var totalTips LivestreamRanking
-	if err := tx.GetContext(ctx, &totalTips, "SELECT l.id AS livestream_id, IFNULL(SUM(l2.tip), 0) AS score FROM livestreams l INNER JOIN livecomments l2 ON l.id = l2.livestream_id GROUP BY l.id"); err != nil && !errors.Is(err, sql.ErrNoRows) {
+	var _totalTips LivestreamRanking
+	if err := tx.GetContext(ctx, &_totalTips, "SELECT l.id AS livestream_id, IFNULL(SUM(l2.tip), 0) AS score FROM livestreams l INNER JOIN livecomments l2 ON l.id = l2.livestream_id GROUP BY l.id"); err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to count tips: "+err.Error())
 	}
+	totalTips := make(map[int64]int64)
+	for i := 0; i < len(_totalTips); i++ {
+		totalTips[_totalTips[i].LivestreamID] = _totalTips[i].Score
+	}
 	for i := 0; i < len(ranking); i++ {
-		ranking[i].Score += totalTips[i].Score
+		ranking[i].Score += totalTips[ranking[i].LivestreamID]
 	}
 	sort.Sort(ranking)
 
