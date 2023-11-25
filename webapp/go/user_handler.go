@@ -120,11 +120,14 @@ func getIconHandler(c echo.Context) error {
 
 	hash := c.Request().Header.Get("If-None-Match")
 	if hash == "" {
+		c.Logger().Debugf("[NOIFNONE] hash: %s, image.Hash: %s", hash, image.Hash)
 		return c.Blob(http.StatusOK, "image/jpeg", image.Image)
 	}
 	if hash == image.Hash {
+		c.Logger().Debugf("[HASHDETECTED] hash: %s, image.Hash: %s", hash, image.Hash)
 		return c.NoContent(http.StatusNotModified)
 	}
+	c.Logger().Debugf("[HASHNO] hash: %s, image.Hash: %s", hash, image.Hash)
 	return c.Blob(http.StatusOK, "image/jpeg", image.Image)
 }
 
