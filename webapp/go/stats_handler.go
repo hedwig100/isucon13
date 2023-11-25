@@ -99,8 +99,8 @@ func getUserStatisticsHandler(c echo.Context) error {
 	// var reactions int64
 	query := `
 		SELECT u.name AS name, COUNT(*) AS score FROM users u
-		INNER JOIN livestreams l ON l.user_id = u.id
-		INNER JOIN reactions r ON r.livestream_id = l.id
+		LEFT OUTER JOIN livestreams l ON l.user_id = u.id
+		LEFT OUTER JOIN reactions r ON r.livestream_id = l.id
 		GROUP BY u.name`
 	if err := tx.SelectContext(ctx, &ranking0, query); err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to count reactions: "+err.Error())
@@ -109,8 +109,8 @@ func getUserStatisticsHandler(c echo.Context) error {
 	// var tips int64
 	query = `
 		SELECT u.name AS name, IFNULL(SUM(l2.tip), 0) AS score FROM users u
-		INNER JOIN livestreams l ON l.user_id = u.id	
-		INNER JOIN livecomments l2 ON l2.livestream_id = l.id
+		LEFT OUTER JOIN livestreams l ON l.user_id = u.id	
+		LEFT OUTER JOIN livecomments l2 ON l2.livestream_id = l.id
 		GROUP BY u.name`
 	if err := tx.SelectContext(ctx, &ranking1, query); err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to count tips: "+err.Error())
