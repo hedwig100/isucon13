@@ -140,11 +140,11 @@ func getUserStatisticsHandler(c echo.Context) error {
 	// 	Score:    score,
 	// })
 	// }
-	sort.Sort(ranking1)
+	sort.Sort(ranking)
 
 	var rank int64 = 1
-	for i := len(ranking1) - 1; i >= 0; i-- {
-		entry := ranking1[i]
+	for i := len(ranking) - 1; i >= 0; i-- {
+		entry := ranking[i]
 		if entry.Username == username {
 			break
 		}
