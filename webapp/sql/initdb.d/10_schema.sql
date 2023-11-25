@@ -108,4 +108,4 @@ CREATE TABLE `reactions` (
 ALTER TABLE livestream_tags ADD INDEX livestream_id_index(livestream_id);
 ALTER TABLE icons ADD INDEX icon_index(user_id);
 ALTER TABLE themes ADD INDEX theme_index(user_id);
-ALTER TABLE ng_words ADD INDEX ng_word_index(user_id, livecomment_id);
+ALTER TABLE ng_words ADD INDEX ng_word_index(user_id, livestream_id);
