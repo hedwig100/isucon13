@@ -228,12 +228,12 @@ func getLivestreamStatisticsHandler(c echo.Context) error {
 	}
 
 	var ranking LivestreamRanking
-	if err := tx.GetContext(ctx, &ranking, "SELECT l.id AS livestream_id, COUNT(*) AS score FROM livestreams l INNER JOIN reactions r ON l.id = r.livestream_id"); err != nil && !errors.Is(err, sql.ErrNoRows) {
+	if err := tx.GetContext(ctx, &ranking, "SELECT l.id AS livestream_id, COUNT(*) AS score FROM livestreams l INNER JOIN reactions r ON l.id = r.livestream_id GROUP BY l.id"); err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to count reactions: "+err.Error())
 	}
 
 	var totalTips LivestreamRanking
-	if err := tx.GetContext(ctx, &totalTips, "SELECT l.id AS livestream_id, IFNULL(SUM(l2.tip), 0) AS score FROM livestreams l INNER JOIN livecomments l2 ON l.id = l2.livestream_id"); err != nil && !errors.Is(err, sql.ErrNoRows) {
+	if err := tx.GetContext(ctx, &totalTips, "SELECT l.id AS livestream_id, IFNULL(SUM(l2.tip), 0) AS score FROM livestreams l INNER JOIN livecomments l2 ON l.id = l2.livestream_id GROUP BY l.id"); err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to count tips: "+err.Error())
 	}
 	for i := 0; i < len(ranking); i++ {
